@@ -1,2 +1,2 @@
 # yesrabsResume
-this is my Letex resume
+This GitHub repo is store my LeTeX resume
