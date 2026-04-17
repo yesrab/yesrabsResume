@@ -22,15 +22,19 @@ jobs:
           root_file: main.tex
           latexmk_use_xelatex: false
 
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: resume-pdf
-          path: main.pdf
-
-      - name: Commit PDF to repo
+      - name: Prepare release file
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add main.pdf
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "build: generate resume PDF" && git push
+          DATE=$(date +'%d-%m-%Y')
+          FILENAME="Yesrab_Resume_${DATE}.pdf"
+          cp main.pdf "$FILENAME"
+          echo "FILENAME=$FILENAME" >> "$GITHUB_ENV"
+          echo "TAG=resume-${DATE}" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.FILENAME }}
+          files: ${{ env.FILENAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
